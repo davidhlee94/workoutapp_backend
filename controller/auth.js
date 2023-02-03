@@ -4,23 +4,20 @@ const bcrypt = require("bcrypt");
 
 const router = express.Router();
 
-// routes/controllers here
 const { createUserToken } = require("../middleware/auth");
 
 // REGISTER
 // POST /auth/register
 router.post("/register", async (req, res, next) => {
-    //   has the password before storing the user info in the database
     try {
 
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(req.body.password, salt);
 
         const pwStore = req.body.password;
-        // we store this temporarily so the origin plain text password can be parsed by the createUserToken();
+
 
         req.body.password = passwordHash;
-        // modify req.body (for storing hash in db)
 
         const newUser = await User.create(req.body);
 

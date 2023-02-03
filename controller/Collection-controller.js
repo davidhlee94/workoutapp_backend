@@ -9,7 +9,6 @@ const { handleValidateOwnership, requireToken } = require("../middleware/auth");
 router.get("/", async (req, res, next) => {
     try {
         const collection = await Collection.find()
-        // .populate('owner', 'username_id').exec();
         console.log("found", collection)
         res.status(200).json(collection);
     } catch (error) {
