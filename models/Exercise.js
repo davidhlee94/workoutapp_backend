@@ -14,6 +14,9 @@ const exerciseSchema = new mongoose.Schema(
             type: Number,
             required: [true, "sets cannot be empty"]
         },
+        notes: {
+            type: String
+        },
         weight: {
             type: Number
         },
