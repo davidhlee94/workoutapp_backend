@@ -16,8 +16,15 @@ app.use(express.json());
 const cors = require("cors");
 const morgan = require("morgan");
 
+
 // IMPORT CONTROLLER(S)
-const { exerciseController, collectionController } = require("./controller");
+const { exerciseController, collectionController, authController } = require("./controller");
+
+
+// Require the user resource routes and controllers
+
+
+
 
 // MIDDLEWARE
 app.use(cors());
@@ -26,6 +33,8 @@ app.use(express.json()); // app.use(express.json()) MUST GO BEFORE THE CONTROLLE
 app.use(express.urlencoded({ extended: true }));
 app.use("/exercise", exerciseController);
 app.use("/collection", collectionController);
+app.use("/auth", authController);
+
 app.use((err, req, res, next) => res.status(500).send(err));
 
 // TEST ROUTE -> WORKING

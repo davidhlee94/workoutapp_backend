@@ -4,10 +4,13 @@ const { Collection, Exercise } = require("../models")
 
 require("../config/db.connection");
 
+const { handleValidateOwnership, requireToken } = require("../middleware/auth");
 
 router.get("/", async (req, res, next) => {
     try {
-        const collection = await Collection.find({});
+        const collection = await Collection.find()
+        // .populate('owner', 'username_id').exec();
+        console.log("found", collection)
         res.status(200).json(collection);
     } catch (error) {
         console.error(error);
@@ -16,8 +19,10 @@ router.get("/", async (req, res, next) => {
 });
 
 
-router.post("/", async (req, res, next) => {
+router.post("/", requireToken, async (req, res, next) => {
     try {
+        const owner = req.user._id
+        req.body.owner = owner
         const createdCollection = await Collection.create(req.body);
         res.status(201).json(createdCollection);
     } catch (error) {
@@ -28,7 +33,7 @@ router.post("/", async (req, res, next) => {
 
 router.get("/:id", async (req, res, next) => {
     try {
-        const collection = await Collection.findById(req.params.id);
+        const collection = await Collection.findById(req.params.id).populate("owner").populate("exercises");
         res.status(200).json(collection);
     } catch (error) {
         console.error(error);
@@ -40,7 +45,7 @@ router.get("/:id", async (req, res, next) => {
 //grabs the specific collections exercise id's
 router.get("/:id/exercises", async (req, res, next) => {
     try {
-        const collectionExercises = await Collection.findById(req.params.id)
+        const collectionExercises = await Collection.findById(req.params.id).populate("exercises");
         res.status(200).json(collectionExercises.exercises)
     } catch (error) {
         console.log(error);
@@ -48,8 +53,11 @@ router.get("/:id/exercises", async (req, res, next) => {
     }
 })
 
-router.delete("/:id", async (req, res, next) => {
+
+
+router.delete("/:id", requireToken, async (req, res, next) => {
     try {
+        handleValidateOwnership(req, await Collection.findById(req.params.id))
         const deletedCollection = await Collection.findByIdAndDelete(req.params.id);
         res.status(202).json(deletedCollection);
     } catch (error) {
@@ -97,6 +105,7 @@ router.put("/:id/add-exercise", async (req, res, next) => {
 
 router.put("/:id", async (req, res, next) => {
     try {
+        handleValidateOwnership(req, await Collection.findById(req.params.id))
         const updatedCollection = await Collection.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
         });
